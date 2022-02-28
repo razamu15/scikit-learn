@@ -1804,3 +1804,4 @@ def test_ridge_sample_weight_invariance(normalize, solver):
 
     assert_allclose(ridge_2sw.coef_, ridge_dup.coef_)
     assert_allclose(ridge_2sw.intercept_, ridge_dup.intercept_)
+
