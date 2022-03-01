@@ -1805,3 +1805,13 @@ def test_ridge_sample_weight_invariance(normalize, solver):
     assert_allclose(ridge_2sw.coef_, ridge_dup.coef_)
     assert_allclose(ridge_2sw.intercept_, ridge_dup.intercept_)
 
+def test_ridgeGCV_pipeline_alphas_warning_message():
+    rng = np.random.RandomState(0)
+    y = rng.randn(5)
+    X = rng.randn(5, 10)
+    warning_message = r"Set parameter alphas to: original_alphas \* n_samples."
+
+    model = RidgeCV(normalize=True)
+
+    with pytest.warns(FutureWarning, match=warning_message):
+        model.fit(X, y)
