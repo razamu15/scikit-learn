@@ -690,26 +690,27 @@ def test_iterative_imputer_estimators(estimator):
     # check that each estimator is unique
     assert len(set(hashes)) == len(hashes)
 
+
 def test_multiple_dimension_PLS_dataset1():
 
-    #Import random field generator
+    # Import random field generator
     rng = np.random.RandomState(42)
 
-    #Fetch the values from the california housing dataset
+    # Fetch the values from the california housing dataset
     X_california, y_california = fetch_california_housing(return_X_y=True)
 
-    #Collect a subset for the values for the test
+    # Collect a subset for the values for the test
     X_california = X_california[:400]
     y_california = y_california[:400]
 
-    #Used to remove values 75% of values from dataset array
-    def add_missing_values(X_full, y_full):
+    # Used to remove values 75% of values from dataset array
+    def add_missing_values(X_full):
         n_samples, n_features = X_full.shape
 
-        # Determine the number of Nans to be set 
+        # Determine the number of Nans to be set
         missing_rate = 0.75
         n_missing_samples = int(n_samples * missing_rate)
-        
+   
         # Determine ranom indices to be changed to Nans in the dataset array
         missing_samples = np.zeros(n_samples, dtype=bool)
         missing_samples[: n_missing_samples] = True
@@ -719,21 +720,25 @@ def test_multiple_dimension_PLS_dataset1():
         missing_features = rng.randint(0, n_features, n_missing_samples)
         X_missing = X_full.copy()
         X_missing[missing_samples, missing_features] = np.nan
-        y_missing = y_full.copy()
 
-        return X_missing, y_missing
+        return X_missing
 
     # Generate 2D array with missing data
-    X_miss_california, y_miss_california = add_missing_values(
-        X_california, y_california)
+    X_miss_california = add_missing_values(X_california)
 
     # Create imputer with estimator as PLSRegression
     imputer = IterativeImputer(estimator=PLSRegression(n_components=2))
 
     X_imputed = imputer.fit_transform(X_miss_california)
 
-    # Verify the dimension
+    # Verify the dimension of the inputed dataset
     assert X_california.shape == X_imputed.shape
+
+    # Verify non-missing values were unchanged in the dataset
+    non_missing = ~np.isnan(X_miss_california.flatten())
+    assert np.all(X_miss_california.flatten()[non_missing] ==
+                  X_imputed.flatten()[non_missing])
+
 
 def test_multiple_dimension_PLS2_dataset2():
 
@@ -777,8 +782,13 @@ def test_multiple_dimension_PLS2_dataset2():
 
     X_imputed = imputer.fit_transform(X_miss_diabetes)
 
-    # Verify the dimension
+    # Verify the dimensions of the imputed dataset
     assert X_diabetes.shape == X_imputed.shape    
+
+    # Verify that non-missing values stayed the same
+    non_missing = ~np.isnan(X_miss_diabetes.flatten())
+    assert np.all(X_miss_diabetes.flatten()[non_missing] ==
+                  X_imputed.flatten()[non_missing])
 
 
 def test_iterative_imputer_clip():
