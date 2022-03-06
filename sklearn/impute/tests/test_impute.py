@@ -726,9 +726,8 @@ def test_multiple_dimension_PLS_dataset1():
     # Generate 2D array with missing data
     X_miss_california = add_missing_values(X_california)
 
-    # Create imputer with estimator as PLSRegression
+    # Create imputer with estimator as PLSRegression and impute dataset
     imputer = IterativeImputer(estimator=PLSRegression(n_components=2))
-
     X_imputed = imputer.fit_transform(X_miss_california)
 
     # Verify the dimension of the inputed dataset
@@ -783,7 +782,7 @@ def test_multiple_dimension_PLS2_dataset2():
     X_imputed = imputer.fit_transform(X_miss_diabetes)
 
     # Verify the dimensions of the imputed dataset
-    assert X_diabetes.shape == X_imputed.shape    
+    assert X_diabetes.shape == X_imputed.shape  
 
     # Verify that non-missing values stayed the same
     non_missing = ~np.isnan(X_miss_diabetes.flatten())
