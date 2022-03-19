@@ -2441,8 +2441,8 @@ def test_grid_search_cv_best_params_iris():
     # Verify that the best params are the same as the difference 
     # between mean_train_score and mean_test_score is minimum for 
     # kernel: 'linear' and C: 1 
-    assert best_params_2['C'] == best_params_1['C']
-    assert best_params_2['kernel'] == best_params_1['kernel']
+    assert best_params_2['C'] == best_params_1['C'] == 1
+    assert best_params_2['kernel'] == best_params_1['kernel'] == 'linear'
 
 def test_randomized_search_cv_best_params_iris():
 
@@ -2474,8 +2474,8 @@ def test_randomized_search_cv_best_params_iris():
     # Verify that the best params are the same as the difference 
     # between mean_train_score and mean_test_score is minimum for 
     # kernel: 'linear' and C: 1 
-    assert best_params_2['C'] == best_params_1['C']
-    assert best_params_2['kernel'] == best_params_1['kernel']
+    assert best_params_2['C'] == best_params_1['C'] == 1
+    assert best_params_2['kernel'] == best_params_1['kernel'] == 'linear'
 
 def test_grid_search_unique_ranks():
 
