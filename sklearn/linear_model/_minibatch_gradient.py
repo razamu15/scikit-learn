@@ -2070,6 +2070,9 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
 
         .. versionadded:: 1.0
 
+    mini_batch : int
+    The number of batches userd by the MiniBatch Gradient descent algorithm.
+
     See Also
     --------
     sklearn.svm.OneClassSVM : Unsupervised Outlier Detection.
@@ -2110,10 +2113,12 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
         power_t=0.5,
         warm_start=False,
         average=False,
+        mini_batch=10 
     ):
 
         alpha = nu / 2
         self.nu = nu
+        self.mini_batch = mini_batch
         super(MBGDOneClassSVM, self).__init__(
             loss="hinge",
             penalty="l2",
@@ -2141,6 +2146,8 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
         """Validate input params."""
         if not (0 < self.nu <= 1):
             raise ValueError("nu must be in (0, 1], got nu=%f" % self.nu)
+        if not (0 < self.mini_batch and type(self.mini_batch) == int):
+            raise ValueError("mini_batch must be positive int, got nu=%f" % self.mini_batch)
 
         super(MBGDOneClassSVM, self)._validate_params(for_partial_fit=for_partial_fit)
 
@@ -2220,7 +2227,7 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
             self.t_,
             offset_decay,
             self.average,
-            1
+            self.mini_batch
         )
 
         self.t_ += self.n_iter_ * n_samples
