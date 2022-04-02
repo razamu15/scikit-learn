@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from sklearn.linear_model._minibatch_gradient import BaseMBGDClassifier, BaseMBGDRegressor, MBGDOneClassSVM
+from sklearn.linear_model._minibatch_gradient import BaseMBGDClassifier, BaseMBGDRegressor
 from sklearn.utils._testing import assert_allclose
 from sklearn.utils._testing import assert_array_equal
 from sklearn.utils._testing import assert_almost_equal
@@ -111,6 +111,10 @@ def SparseSGDRegressor(**kwargs):
 def SparseSGDOneClassSVM(**kwargs):
     _update_kwargs(kwargs)
     return _SparseSGDOneClassSVM(**kwargs)
+
+def MBGDOneClassSVM(**kwargs):
+    _update_kwargs(kwargs)
+    return linear_model.MBGDOneClassSVM(**kwargs)
 
 
 # Test Data
@@ -225,6 +229,7 @@ def asgd(klass, X, y, eta, alpha, weight_init=None, intercept_init=0.0):
         SparseSGDRegressor,
         SGDOneClassSVM,
         SparseSGDOneClassSVM,
+        MBGDOneClassSVM
     ],
 )
 @pytest.mark.parametrize("fit_method", ["fit", "partial_fit"])

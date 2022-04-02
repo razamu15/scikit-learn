@@ -100,6 +100,7 @@ class BaseMBGD(SparseCoefMixin, BaseEstimator, metaclass=ABCMeta):
         n_iter_no_change=5,
         warm_start=False,
         average=False,
+        mini_batch=10
     ):
         self.loss = loss
         self.penalty = penalty
@@ -121,6 +122,7 @@ class BaseMBGD(SparseCoefMixin, BaseEstimator, metaclass=ABCMeta):
         self.average = average
         self.max_iter = max_iter
         self.tol = tol
+        self.mini_batch = mini_batch
 
     @abstractmethod
     def fit(self, X, y):
@@ -144,6 +146,8 @@ class BaseMBGD(SparseCoefMixin, BaseEstimator, metaclass=ABCMeta):
             raise ValueError("n_iter_no_change must be >= 1")
         if not (0.0 < self.validation_fraction < 1.0):
             raise ValueError("validation_fraction must be in range (0, 1)")
+        if not (0 < self.mini_batch and type(self.mini_batch) == int):
+            raise ValueError("mini_batch must be positive int, got nu=%f" % self.mini_batch)
         if self.learning_rate in ("constant", "invscaling", "adaptive"):
             if self.eta0 <= 0.0:
                 raise ValueError("eta0 must be > 0")
@@ -529,6 +533,7 @@ class BaseMBGDClassifier(LinearClassifierMixin, BaseMBGD, metaclass=ABCMeta):
         class_weight=None,
         warm_start=False,
         average=False,
+        mini_batch=10
     ):
 
         super().__init__(
@@ -551,6 +556,7 @@ class BaseMBGDClassifier(LinearClassifierMixin, BaseMBGD, metaclass=ABCMeta):
             n_iter_no_change=n_iter_no_change,
             warm_start=warm_start,
             average=average,
+            mini_batch=mini_batch
         )
         self.class_weight = class_weight
         self.n_jobs = n_jobs
@@ -1098,6 +1104,9 @@ class MBGDClassifier(BaseMBGDClassifier):
         averaging after seeing 10 samples.
         Integer values must be in the range `[1, n_samples]`.
 
+    mini_batch : int
+        The number of batches userd by the MiniBatch Gradient descent algorithm.
+
     Attributes
     ----------
     coef_ : ndarray of shape (1, n_features) if n_classes == 2 else \
@@ -1180,6 +1189,7 @@ class MBGDClassifier(BaseMBGDClassifier):
         class_weight=None,
         warm_start=False,
         average=False,
+        mini_batch=10
     ):
         super().__init__(
             loss=loss,
@@ -1203,6 +1213,7 @@ class MBGDClassifier(BaseMBGDClassifier):
             class_weight=class_weight,
             warm_start=warm_start,
             average=average,
+            mini_batch=mini_batch
         )
 
     def _check_proba(self):
@@ -1363,6 +1374,7 @@ class BaseMBGDRegressor(RegressorMixin, BaseMBGD):
         n_iter_no_change=5,
         warm_start=False,
         average=False,
+        mini_batch=10
     ):
         super().__init__(
             loss=loss,
@@ -1384,6 +1396,7 @@ class BaseMBGDRegressor(RegressorMixin, BaseMBGD):
             n_iter_no_change=n_iter_no_change,
             warm_start=warm_start,
             average=average,
+            mini_batch=mini_batch
         )
 
     def _partial_fit(
@@ -1845,6 +1858,9 @@ class MBGDRegressor(BaseMBGDRegressor):
         samples seen reaches `average`. So ``average=10`` will begin
         averaging after seeing 10 samples.
 
+    mini_batch : int
+        The number of batches userd by the MiniBatch Gradient descent algorithm.
+
     Attributes
     ----------
     coef_ : ndarray of shape (n_features,)
@@ -1921,6 +1937,7 @@ class MBGDRegressor(BaseMBGDRegressor):
         n_iter_no_change=5,
         warm_start=False,
         average=False,
+        mini_batch=10
     ):
         super().__init__(
             loss=loss,
@@ -1942,6 +1959,7 @@ class MBGDRegressor(BaseMBGDRegressor):
             n_iter_no_change=n_iter_no_change,
             warm_start=warm_start,
             average=average,
+            mini_batch=mini_batch
         )
 
     def _more_tags(self):
@@ -2118,7 +2136,6 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
 
         alpha = nu / 2
         self.nu = nu
-        self.mini_batch = mini_batch
         super(MBGDOneClassSVM, self).__init__(
             loss="hinge",
             penalty="l2",
@@ -2140,14 +2157,13 @@ class MBGDOneClassSVM(BaseMBGD, OutlierMixin):
             n_iter_no_change=5,
             warm_start=warm_start,
             average=average,
+            mini_batch=mini_batch
         )
 
     def _validate_params(self, for_partial_fit=False):
         """Validate input params."""
         if not (0 < self.nu <= 1):
             raise ValueError("nu must be in (0, 1], got nu=%f" % self.nu)
-        if not (0 < self.mini_batch and type(self.mini_batch) == int):
-            raise ValueError("mini_batch must be positive int, got nu=%f" % self.mini_batch)
 
         super(MBGDOneClassSVM, self)._validate_params(for_partial_fit=for_partial_fit)
 
