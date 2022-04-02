@@ -697,12 +697,12 @@ def _plain_mbgd(np.ndarray[double, ndim=1, mode='c'] weights,
                int n_iter_no_change,
                int max_iter, double tol, int fit_intercept,
                int verbose, 
-               bint shuffle=1, 
                np.uint32_t seed,
                double weight_pos, double weight_neg,
                int learning_rate, double eta0,
                double power_t,
                bint one_class,
+               bint shuffle=1,
                double t=1.0,
                double intercept_decay=1.0,
                int average=0,
@@ -862,6 +862,7 @@ def _plain_mbgd(np.ndarray[double, ndim=1, mode='c'] weights,
         optimal_init = 1.0 / (initial_eta0 * alpha)
 
     t_start = time()
+    counts = []
     for epoch in range(max_iter):
         sumloss = 0
         if shuffle:
@@ -934,6 +935,9 @@ def _plain_mbgd(np.ndarray[double, ndim=1, mode='c'] weights,
 
                 update *= class_weight * sample_weight
                 batch_update += update
+
+         
+            s += "Epoch {} minibatch size: {}".format(epoch, m)
             
             if m != 0:
                 update = batch_update/m
@@ -1010,7 +1014,7 @@ def _plain_mbgd(np.ndarray[double, ndim=1, mode='c'] weights,
 
     w.reset_wscale()
 
-    return weights, intercept, average_weights, average_intercept, epoch + 1
+    return weights, intercept, average_weights, average_intercept, epoch + 1, s
 
 cdef bint any_nonfinite(double *w, int n) nogil:
     for i in range(n):
