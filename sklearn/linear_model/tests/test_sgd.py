@@ -598,7 +598,7 @@ def test_sgd_clf(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDOneClassSVM, SparseSGDOneClassSVM]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDOneClassSVM, SparseSGDOneClassSVM, MBGDClassifier, MBGDOneClassSVM]
 )
 def test_provide_coef(klass):
     """Check that the shape of `coef_init` is validated."""
@@ -613,6 +613,8 @@ def test_provide_coef(klass):
         (SparseSGDClassifier, {"intercept_init": np.zeros((3,))}),
         (SGDOneClassSVM, {"offset_init": np.zeros((3,))}),
         (SparseSGDOneClassSVM, {"offset_init": np.zeros((3,))}),
+        (MBGDClassifier, {"intercept_init": np.zeros((3,))}),
+        (MBGDOneClassSVM, {"offset_init": np.zeros((3,))}),
     ],
 )
 def test_set_intercept_offset(klass, fit_params):
@@ -623,7 +625,7 @@ def test_set_intercept_offset(klass, fit_params):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_sgd_early_stopping_with_partial_fit(klass):
     """Check that we raise an error for `early_stopping` used with
@@ -641,6 +643,8 @@ def test_sgd_early_stopping_with_partial_fit(klass):
         (SparseSGDClassifier, {"intercept_init": 0}),
         (SGDOneClassSVM, {"offset_init": 0}),
         (SparseSGDOneClassSVM, {"offset_init": 0}),
+        (MBGDClassifier, {"intercept_init": 0}),
+        (MBGDOneClassSVM, {"offset_init": 0}),
     ],
 )
 def test_set_intercept_offset_binary(klass, fit_params):
@@ -932,7 +936,7 @@ def test_sgd_l1(klass):
     assert_array_equal(pred, Y)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_class_weights(klass):
     # Test class weights.
     X = np.array([[-1.0, -1.0], [-1.0, 0], [-0.8, -1.0], [1.0, 1.0], [1.0, 0.0]])
@@ -951,7 +955,7 @@ def test_class_weights(klass):
     assert_array_equal(clf.predict([[0.2, -1.0]]), np.array([-1]))
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_equal_class_weight(klass):
     # Test if equal class weights approx. equals no class weights.
     X = [[1, 0], [1, 0], [0, 1], [0, 1]]
@@ -968,7 +972,7 @@ def test_equal_class_weight(klass):
     assert_almost_equal(clf.coef_, clf_weighted.coef_, decimal=2)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_wrong_class_weight_label(klass):
     # ValueError due to not existing class label.
     clf = klass(alpha=0.1, max_iter=1000, class_weight={0: 0.5})
@@ -976,7 +980,7 @@ def test_wrong_class_weight_label(klass):
         clf.fit(X, Y)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_wrong_class_weight_format(klass):
     # ValueError due to wrong class_weight argument type.
     clf = klass(alpha=0.1, max_iter=1000, class_weight=[0.5])
@@ -984,7 +988,7 @@ def test_wrong_class_weight_format(klass):
         clf.fit(X, Y)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_weights_multiplied(klass):
     # Tests that class_weight and sample_weight are multiplicative
     class_weights = {1: 0.6, 2: 0.3}
@@ -1050,7 +1054,7 @@ def test_balanced_weight(klass):
     assert metrics.f1_score(y, y_pred, average="weighted") > 0.96
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_sample_weights(klass):
     # Test weights on individual samples
     X = np.array([[-1.0, -1.0], [-1.0, 0], [-0.8, -1.0], [1.0, 1.0], [1.0, 0.0]])
@@ -1069,11 +1073,11 @@ def test_sample_weights(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDOneClassSVM, SparseSGDOneClassSVM, MBGDOneClassSVM]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDOneClassSVM, SparseSGDOneClassSVM, MBGDClassifier, MBGDOneClassSVM]
 )
 def test_wrong_sample_weights(klass):
     # Test if ValueError is raised if sample_weight has wrong shape
-    if klass in [SGDClassifier, SparseSGDClassifier]:
+    if klass in [SGDClassifier, SparseSGDClassifier, MBGDClassifier]:
         clf = klass(alpha=0.1, max_iter=1000, fit_intercept=False)
     elif klass in [SGDOneClassSVM, SparseSGDOneClassSVM, MBGDOneClassSVM]:
         clf = klass(nu=0.1, max_iter=1000, fit_intercept=False)
@@ -1082,7 +1086,7 @@ def test_wrong_sample_weights(klass):
         clf.fit(X, Y, sample_weight=np.arange(7))
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_partial_fit_exception(klass):
     clf = klass(alpha=0.01)
     # classes was not specified
@@ -1090,7 +1094,7 @@ def test_partial_fit_exception(klass):
         clf.partial_fit(X3, Y3)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_partial_fit_binary(klass):
     third = X.shape[0] // 3
     clf = klass(alpha=0.01)
@@ -1111,7 +1115,7 @@ def test_partial_fit_binary(klass):
     assert_array_equal(y_pred, true_result)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_partial_fit_multiclass(klass):
     third = X2.shape[0] // 3
     clf = klass(alpha=0.01)
@@ -1129,7 +1133,7 @@ def test_partial_fit_multiclass(klass):
     assert id1, id2
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_partial_fit_multiclass_average(klass):
     third = X2.shape[0] // 3
     clf = klass(alpha=0.01, average=X2.shape[0])
@@ -1144,7 +1148,7 @@ def test_partial_fit_multiclass_average(klass):
     assert clf.intercept_.shape == (3,)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_fit_then_partial_fit(klass):
     # Partial_fit should work after initial fit in the multiclass case.
     # Non-regression test for #2496; fit would previously produce a
@@ -1154,7 +1158,8 @@ def test_fit_then_partial_fit(klass):
     clf.partial_fit(X2, Y2)  # no exception here
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+# MBGDClassifier fails one of the lr cases here do you guys want to keep it?
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 @pytest.mark.parametrize("lr", ["constant", "optimal", "invscaling", "adaptive"])
 def test_partial_fit_equal_fit_classif(klass, lr):
     for X_, Y_, T_ in ((X, Y, T), (X2, Y2, T2)):
@@ -1211,12 +1216,12 @@ def test_regression_losses(klass):
     assert 1.0 == np.mean(clf.predict(X) == Y)
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_warm_start_multiclass(klass):
     _test_warm_start(klass, X2, Y2, "optimal")
 
 
-@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
+@pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier, MBGDClassifier])
 def test_multiple_fit(klass):
     # Test multiple calls of fit w/ different shaped inputs.
     clf = klass(alpha=0.01, shuffle=False)
