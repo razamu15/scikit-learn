@@ -31,7 +31,7 @@ from ._coordinate_descent import (
 )
 from ._glm import PoissonRegressor, GammaRegressor, TweedieRegressor
 from ._huber import HuberRegressor
-from ._minibatch_gradient import MBGDOneClassSVM
+from ._minibatch_gradient import MBGDOneClassSVM, MBGDClassifier, MBGDRegressor
 from ._sgd_fast import Hinge, Log, ModifiedHuber, SquaredLoss, Huber
 from ._stochastic_gradient import SGDClassifier, SGDRegressor, SGDOneClassSVM
 from ._ridge import Ridge, RidgeCV, RidgeClassifier, RidgeClassifierCV, ridge_regression
@@ -87,6 +87,8 @@ __all__ = [
     "SGDClassifier",
     "SGDRegressor",
     "SGDOneClassSVM",
+    "MBGDClassifier",
+    "MBGDRegressor",
     "MBGDOneClassSVM",
     "SquaredLoss",
     "TheilSenRegressor",

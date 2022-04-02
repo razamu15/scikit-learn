@@ -116,6 +116,16 @@ def MBGDOneClassSVM(**kwargs):
     _update_kwargs(kwargs)
     return linear_model.MBGDOneClassSVM(**kwargs)
 
+def MBGDClassifier(**kwargs):
+    _update_kwargs(kwargs)
+    return linear_model.MBGDClassifier(**kwargs)
+
+def MBGDRegressor(**kwargs):
+    _update_kwargs(kwargs)
+    return linear_model.MBGDRegressor(**kwargs)
+
+
+
 
 # Test Data
 
@@ -229,6 +239,8 @@ def asgd(klass, X, y, eta, alpha, weight_init=None, intercept_init=0.0):
         SparseSGDRegressor,
         SGDOneClassSVM,
         SparseSGDOneClassSVM,
+        MBGDClassifier,
+        MBGDRegressor,
         MBGDOneClassSVM
     ],
 )
@@ -274,6 +286,23 @@ def test_sgd_estimator_params_validation(klass, fit_method, params, err_msg):
         else:
             fit_params = {}
         getattr(sgd_estimator, fit_method)(X, Y, **fit_params)
+
+
+@pytest.mark.parametrize(
+    "klass", [MBGDClassifier, MBGDRegressor, MBGDOneClassSVM],
+)
+def test_mbgd_estimator_params_validation(klass):
+    """Validate MBGD estimators parameters for the minibatch argument specifically"""
+    try:
+        mbgd_estimator = klass(minibatch=-1)
+    except TypeError as err:
+        if "unexpected keyword argument" in str(err):
+            # skip test if the parameter is not supported by the estimator
+            return
+        raise err
+
+    with pytest.raises(ValueError):
+        mbgd_estimator();
 
 
 def _test_warm_start(klass, X, Y, lr):
