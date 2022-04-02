@@ -1237,7 +1237,7 @@ def test_multiple_fit(klass):
 # Regression Test Case
 
 
-@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor])
+@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor, MBGDRegressor])
 def test_sgd_reg(klass):
     # Check that SGD gives any results.
     clf = klass(alpha=0.1, max_iter=2, fit_intercept=False)
@@ -1457,7 +1457,7 @@ def test_elasticnet_convergence(klass):
 
 
 @ignore_warnings
-@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor])
+@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor, MBGDRegressor])
 def test_partial_fit(klass):
     third = X.shape[0] // 3
     clf = klass(alpha=0.01)
@@ -1491,7 +1491,7 @@ def test_partial_fit_equal_fit(klass, lr):
     assert_array_almost_equal(y_pred, y_pred2, decimal=2)
 
 
-@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor])
+@pytest.mark.parametrize("klass", [SGDRegressor, SparseSGDRegressor, MBGDRegressor])
 def test_loss_function_epsilon(klass):
     clf = klass(epsilon=0.9)
     clf.set_params(epsilon=0.1)
@@ -1569,7 +1569,7 @@ def test_warm_start_oneclass(klass, lr):
     _test_warm_start_oneclass(klass, X, lr)
 
 
-@pytest.mark.parametrize("klass", [SGDOneClassSVM, SparseSGDOneClassSVM])
+@pytest.mark.parametrize("klass", [SGDOneClassSVM, SparseSGDOneClassSVM, MBGDOneClassSVM])
 def test_clone_oneclass(klass):
     # Test whether clone works ok.
     clf = klass(nu=0.5)
@@ -2168,7 +2168,7 @@ def test_SGDClassifier_fit_for_all_backends(backend):
 
 # TODO: Remove in v1.2
 @pytest.mark.parametrize(
-    "Estimator", [linear_model.SGDClassifier, linear_model.SGDRegressor]
+    "Estimator", [linear_model.SGDClassifier, linear_model.SGDRegressor, linear_model.MBGDClassifier, linear_model.MBGDRegressor]
 )
 def test_loss_squared_loss_deprecated(Estimator):
 
