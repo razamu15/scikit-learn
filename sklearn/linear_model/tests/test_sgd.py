@@ -330,7 +330,7 @@ def _test_warm_start(klass, X, Y, lr):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 @pytest.mark.parametrize("lr", ["constant", "optimal", "invscaling", "adaptive"])
 def test_warm_start(klass, lr):
@@ -338,7 +338,7 @@ def test_warm_start(klass, lr):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_input_format(klass):
     # Input format tests.
@@ -352,7 +352,7 @@ def test_input_format(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_clone(klass):
     # Test whether clone works ok.
@@ -376,6 +376,9 @@ def test_clone(klass):
         SparseSGDRegressor,
         SGDOneClassSVM,
         SparseSGDOneClassSVM,
+        MBGDClassifier,
+        MBGDRegressor,
+        MBGDOneClassSVM
     ],
 )
 def test_plain_has_no_average_attr(klass):
@@ -405,6 +408,7 @@ def test_plain_has_no_average_attr(klass):
         SparseSGDRegressor,
         SGDOneClassSVM,
         SparseSGDOneClassSVM,
+        MBGDClassifier
     ],
 )
 def test_late_onset_averaging_not_reached(klass):
@@ -472,7 +476,7 @@ def test_late_onset_averaging_reached(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_early_stopping(klass):
     X = iris.data[iris.target > 0]
@@ -486,7 +490,7 @@ def test_early_stopping(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_adaptive_longer_than_constant(klass):
     clf1 = klass(learning_rate="adaptive", eta0=0.01, tol=1e-3, max_iter=100)
@@ -541,7 +545,7 @@ def test_validation_set_not_used_for_training(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_n_iter_no_change(klass):
     X, Y = iris.data, iris.target
@@ -562,7 +566,7 @@ def test_n_iter_no_change(klass):
 
 
 @pytest.mark.parametrize(
-    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor]
+    "klass", [SGDClassifier, SparseSGDClassifier, SGDRegressor, SparseSGDRegressor, MBGDClassifier, MBGDRegressor]
 )
 def test_not_enough_sample_for_early_stopping(klass):
     # test an error is raised if the training or validation set is empty

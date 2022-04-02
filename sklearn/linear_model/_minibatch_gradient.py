@@ -450,7 +450,7 @@ def fit_binary(
 
     tol = est.tol if est.tol is not None else -np.inf
 
-    coef, intercept, average_coef, average_intercept, n_iter_, minibatch_size = _plain_mbgd(
+    coef, intercept, average_coef, average_intercept, n_iter_ = _plain_mbgd(
         coef,
         intercept,
         average_coef,
@@ -480,7 +480,6 @@ def fit_binary(
         est.t_,
         intercept_decay,
         est.average,
-        1
     )
 
     if est.average:
@@ -1639,7 +1638,7 @@ class BaseMBGDRegressor(RegressorMixin, BaseMBGD):
             average_coef = None  # Not used
             average_intercept = [0]  # Not used
 
-        coef, intercept, average_coef, average_intercept, self.n_iter_, minibatch_size = _plain_mbgd(
+        coef, intercept, average_coef, average_intercept, self.n_iter_ = _plain_mbgd(
             coef,
             intercept[0],
             average_coef,
@@ -1669,10 +1668,8 @@ class BaseMBGDRegressor(RegressorMixin, BaseMBGD):
             self.t_,
             intercept_decay,
             self.average,
-            1
+            self.mini_batch
         )
-
-        print(minibatch_size)
 
         self.t_ += self.n_iter_ * X.shape[0]
 
