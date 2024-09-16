@@ -732,8 +732,37 @@ class BaseSearchCV(MetaEstimatorMixin, BaseEstimator, metaclass=ABCMeta):
             if best_index < 0 or best_index >= len(results["params"]):
                 raise IndexError("best_index_ index out of range")
         else:
-            best_index = results[f"rank_test_{refit_metric}"].argmin()
-        return best_index
+            best_index = None
+            # best_index = results[f"rank_test_{refit_metric}"].argmin()
+            # so i need to loop through results[f"rank_test_{refit_metric}"]
+            if("mean_test_score" in results.keys() and "mean_train_score" in results.keys()):
+                test_rank_scores = results["rank_test_score"]
+                test_mean_scores = results["mean_test_score"]
+                train_mean_scores = results["mean_train_score"]
+                min_rank = float("inf")
+                best_scores = []
+                # get the best entries in result by their ranks which are determined by the mean_test_score
+                for index in range(len(test_rank_scores)):
+                    # check if this is the lowest rank
+                    if len(best_scores) == 0:
+                        min_rank = test_rank_scores[index]
+                        best_scores.append((index, train_mean_scores[index], test_mean_scores[index]))
+                    elif test_rank_scores[index] < min_rank:
+                        min_rank = test_rank_scores[index]
+                        best_scores.clear()
+                    elif test_rank_scores[index] == min_rank:
+                        best_scores.append((index, train_mean_scores[index], test_mean_scores[index]))
+
+                # now for all those best scores we get the one with the smallest difference
+                # between mean train score and mean test score
+                min_difference = float("inf")
+                for index in range(len(best_scores)):
+                    train_test_diff = best_scores[index][1] - best_scores[index][2]
+                    if (train_test_diff < min_difference):
+                        min_difference = train_test_diff
+                        best_index = best_scores[index][0]
+
+        return best_index if best_index is not None else results[f"rank_test_{refit_metric}"].argmin()
 
     def fit(self, X, y=None, *, groups=None, **fit_params):
         """Run fit with all sets of parameters.

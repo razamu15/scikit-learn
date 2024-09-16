@@ -8,6 +8,7 @@ import pickle
 import sys
 from types import GeneratorType
 import re
+from sklearn.datasets import load_iris
 
 import numpy as np
 import scipy.sparse as sp
@@ -2409,3 +2410,91 @@ def test_search_cv_verbose_3(capsys, return_train_score):
     else:
         match = re.findall(r"score=[\d\.]+", captured)
     assert len(match) == 3
+
+def test_grid_search_cv_best_params_iris():
+
+    # Test that GridSearchCV returns the same parameters with
+    # highest rank when multiple combinations of the provided parameters
+    # have the same rank
+
+    # Load sample dataset
+    iris = load_iris()
+
+    # Helper to find best paramaters from hyperparameter tuning done using GridSearchCV
+    def grid_search(parameters):
+
+        # Get the estimator 
+        svc = SVC()
+
+        # Instance of GridSearchCV and fit data
+        clf = GridSearchCV(svc, parameters,return_train_score=True)
+        clf.fit(iris.data, iris.target)
+
+        return clf.best_params_
+
+    # Perform hyperparameter tuning using the helper
+    params = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+    best_params_1 = grid_search(params)
+    params = {'kernel':('rbf', 'linear'), 'C':[10, 1]}
+    best_params_2 = grid_search(params)
+
+    # Verify that the best params are the same as the difference 
+    # between mean_train_score and mean_test_score is minimum for 
+    # kernel: 'linear' and C: 1 
+    assert best_params_2['C'] == best_params_1['C'] == 1
+    assert best_params_2['kernel'] == best_params_1['kernel'] == 'linear'
+
+def test_randomized_search_cv_best_params_iris():
+
+    # Test that RandomizedSearchCV returns the same parameters with
+    # highest rank when multiple combinations of the provided parameters
+    # have the same rank
+
+    # Load sample dataset
+    iris = load_iris()
+
+    # Helper to find best paramaters from hyperparameter tuning done using RandomizedSearchCV
+    def grid_search(parameters):
+
+        # Get the estimator 
+        svc = SVC()
+
+        # Instance of RandomizedSearchCV and fit data
+        clf = RandomizedSearchCV(svc, parameters,return_train_score=True)
+        clf.fit(iris.data, iris.target)
+
+        return clf.best_params_
+
+    # Perform hyperparameter tuning using the helper
+    params = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+    best_params_1 = grid_search(params)
+    params = {'kernel':('rbf', 'linear'), 'C':[10, 1]}
+    best_params_2 = grid_search(params)
+
+    # Verify that the best params are the same as the difference 
+    # between mean_train_score and mean_test_score is minimum for 
+    # kernel: 'linear' and C: 1 
+    assert best_params_2['C'] == best_params_1['C'] == 1
+    assert best_params_2['kernel'] == best_params_1['kernel'] == 'linear'
+
+def test_grid_search_unique_ranks():
+
+    # Test that GridSearchCV returns the parameters with 
+    # highest rank when ranks of all combinations of parameters is 
+    # unique.
+
+    # Load sample dataset
+    iris = load_iris()
+
+    # Perform hyperparameter tuning using the helper
+    params = {'kernel':('poly', 'linear'), 'C':[2, 4]}
+    svc = SVC()
+
+    # Instance of GridSearchCV and fit data
+    clf = GridSearchCV(svc, params,return_train_score=True)
+    clf.fit(iris.data, iris.target)
+
+    # Get best parameters from hyperparameter tuning
+    best_params = clf.best_params_
+
+    assert best_params['C'] == 2 and best_params['kernel'] == 'linear'
